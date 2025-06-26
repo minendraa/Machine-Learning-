@@ -5,39 +5,61 @@ import joblib
 import seaborn as sns 
 from sklearn.model_selection import train_test_split
 from sklearn.feature_extraction.text import CountVectorizer
-from sklearn.linear_model import Perceptron
+from sklearn.neural_network import MLPClassifier
 from sklearn.metrics import confusion_matrix,classification_report
 
-df=pd.read_csv("SMSSpamCollection",sep='\t',header=None,names=['label','message'])
+df=pd.read_csv("amazon_musical_instruments_reviews.csv")
 
 df=pd.DataFrame(df)
 
-x=df['message']
-df['label']=df['label'].map({'ham':0,'spam':1})
-y=df['label']
+df = df.dropna(subset=['reviewerName'])
+df=df.dropna(subset=['reviewText'])
+
+def f(row):
+   
+    if row['overall'] == 3.0:
+        val = 'Neutral'
+
+    elif row['overall'] == 1.0 or row['overall'] == 2.0:
+        val = 'Negative'
+
+    elif row['overall'] == 4.0 or row['overall'] == 5.0:
+        val = 'Positive'
+
+    else:
+        val = -1
+
+    return val
+
+df['overall'] = df.apply(f, axis=1)
+df.head(2)
+
+df['reviews'] = df['summary'] + ' ' + df['reviewText']
+
+x=df['reviews']
+y=df['overall']
+
 
 vectorizer=CountVectorizer()
-
 x=vectorizer.fit_transform(x)
 
-joblib.dump(vectorizer,"vectorizer.pkl")
+joblib.dump(vectorizer,"newvectorizerforreview.pkl")
 
-#Balancing imbalanced dataset
 from imblearn.over_sampling import SMOTE
 
-smote=SMOTE(sampling_strategy='minority')
+smote=SMOTE()
 
 x,y=smote.fit_resample(x,y)
 
 X_train,X_test,y_train,y_test=train_test_split(x,y,test_size=0.25,random_state=42)
 
-model=Perceptron()
+model=MLPClassifier(hidden_layer_sizes=(100,),solver='lbfgs')
 model.fit(X_train,y_train)
 
 y_pred=model.predict(X_test)
 print(y_pred)
 
-joblib.dump(model,"modelforperceptron.pkl")
+joblib.dump(model,"newmodelforperceptron.pkl")
 
 print("\nconfusion_matrix: \n",confusion_matrix(y_test,y_pred))
 

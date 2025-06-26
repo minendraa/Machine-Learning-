@@ -1,0 +1,46 @@
+import pandas as pd
+import numpy as np 
+import matplotlib.pyplot as plt
+import joblib 
+import seaborn as sns 
+from sklearn.model_selection import train_test_split
+from sklearn.feature_extraction.text import CountVectorizer
+from sklearn.linear_model import Perceptron
+from sklearn.metrics import confusion_matrix,classification_report
+
+df=pd.read_csv("SMSSpamCollection",sep='\t',header=None,names=['label','message'])
+
+df=pd.DataFrame(df)
+
+x=df['message']
+df['label']=df['label'].map({'ham':0,'spam':1})
+y=df['label']
+
+vectorizer=CountVectorizer()
+
+x=vectorizer.fit_transform(x)
+
+joblib.dump(vectorizer,"vectorizer.pkl")
+
+#Balancing imbalanced dataset
+from imblearn.over_sampling import SMOTE
+
+smote=SMOTE(sampling_strategy='minority')
+
+x,y=smote.fit_resample(x,y)
+
+X_train,X_test,y_train,y_test=train_test_split(x,y,test_size=0.25,random_state=42)
+
+model=Perceptron()
+model.fit(X_train,y_train)
+
+y_pred=model.predict(X_test)
+print(y_pred)
+
+joblib.dump(model,"modelforperceptron.pkl")
+
+print("\nconfusion_matrix: \n",confusion_matrix(y_test,y_pred))
+
+#Detailed classification report 
+print("\nClassification Report: ")
+print(classification_report(y_test,y_pred))

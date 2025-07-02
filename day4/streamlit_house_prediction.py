@@ -11,7 +11,7 @@ label_encoder = joblib.load("house_price_encoder.pkl")
 
 # Title
 st.title("🏡 House Price Prediction App")
-st.markdown("Fill out the form below to predict the price of a house in ₹ (INR).")
+st.markdown("Fill out the form below to predict the price of a house in ₹ (NPR).")
 
 # Furnishing status mapping (if needed)
 furnishing_map = {

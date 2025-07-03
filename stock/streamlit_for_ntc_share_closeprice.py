@@ -83,7 +83,7 @@ try:
         if submitted:
             prediction = model.predict([[open_price, high_price, low_price]])
             st.success(f"**Predicted Closing Price:** {prediction[0]:.2f}")
-            st.write("Last actual close:", df['Close'].iloc[-1])
+            #st.write("Last actual close:", df['Close'].iloc[-1])
 
 except FileNotFoundError:
     st.error("Error: ntc.csv file not found. Please make sure the file exists in the same directory.")
